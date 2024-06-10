@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
@@ -75,11 +76,11 @@ public class LoginActivity extends AppCompatActivity {
                     .createSignInIntentBuilder()
                     .setTheme(R.style.Base_Theme_Lab6_IoT)
                     .setIsSmartLockEnabled(false)
-                    //.setAuthMethodPickerLayout(authMethodPickerLayout)
+                    .setAuthMethodPickerLayout(authMethodPickerLayout)
                     .setLogo(R.drawable.gestordinero)
                     .setAvailableProviders(Arrays.asList(
-                            new AuthUI.IdpConfig.EmailBuilder().build()
-                            //new AuthUI.IdpConfig.GoogleBuilder().build()
+                            new AuthUI.IdpConfig.EmailBuilder().build(),
+                            new AuthUI.IdpConfig.GoogleBuilder().build()
                     ))
                     .build();
 

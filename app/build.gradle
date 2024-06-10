@@ -13,6 +13,7 @@ android {
         targetSdk 34
         versionCode 1
         versionName "1.0"
+        resConfigs "es" // And any other languages you support
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
