@@ -18,8 +18,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lab6_iot.Bean.Egreso;
 import com.example.lab6_iot.Bean.Ingreso;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
-
+import com.google.firebase.auth.FirebaseAuth;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
@@ -42,6 +43,8 @@ public class AnadirEgresoActivity extends AppCompatActivity {
     private Date fechaEgreso;
 
     private TextView fecha;
+
+    private final static String TAG = "msg-test";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,9 +103,15 @@ public class AnadirEgresoActivity extends AppCompatActivity {
             fecha.setError("Seleccione una fecha");
             return;
         }
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null) { //user logged-in
+            if (currentUser.isEmailVerified()) {
+                Log.d(TAG, "Firebase uid: " + currentUser.getUid());
+            }
+        }
         String idEgreso = generarIdEgreso();
-        String idUsuario = "20182758";
-        Egreso egreso = new Egreso(idEgreso, tituloStr, monto, descripcionStr, fechaEgreso, idUsuario);
+        Egreso egreso = new Egreso(idEgreso, tituloStr, monto, descripcionStr, fechaEgreso, currentUser.getUid());
 
         // Guardar los datos en Firestore
         db.collection("egresos")

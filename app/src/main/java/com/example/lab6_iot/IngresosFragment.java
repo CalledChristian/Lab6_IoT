@@ -2,6 +2,7 @@ package com.example.lab6_iot;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.lab6_iot.Adapter.ListaIngresosAdapter;
 import com.example.lab6_iot.Bean.Ingreso;
 import com.example.lab6_iot.databinding.FragmentIngresosBinding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -30,6 +33,7 @@ public class IngresosFragment extends Fragment {
     RecyclerView recyclerView;
 
     FirebaseFirestore db;
+    private final static String TAG = "msg-test";
 
     ListaIngresosAdapter adapter;
 
@@ -41,6 +45,8 @@ public class IngresosFragment extends Fragment {
             Bundle savedInstanceState) {
 
         binding = FragmentIngresosBinding.inflate(inflater, container, false);
+
+
 
 
 
@@ -88,13 +94,23 @@ public class IngresosFragment extends Fragment {
     }
 
     private void obtenerIngresosDeFirestore() {
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null) { //user logged-in
+            if (currentUser.isEmailVerified()) {
+                Log.d(TAG, "Firebase uid: " + currentUser.getUid());
+            }
+        }
         db.collection("ingresos")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                             Ingreso ingreso = document.toObject(Ingreso.class);
-                                listaIngresos.add(ingreso);
+                                if(ingreso.getIdUsuario().equals(currentUser.getUid())) {
+                                    listaIngresos.add(ingreso);
+                                }
 
                         }
                         adapter.notifyDataSetChanged(); // Notificar al adapter que los datos han cambiado

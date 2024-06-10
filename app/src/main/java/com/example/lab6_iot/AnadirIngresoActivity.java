@@ -26,6 +26,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.lab6_iot.Bean.Ingreso;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.FileInputStream;
@@ -47,6 +49,8 @@ public class AnadirIngresoActivity extends AppCompatActivity {
 
 
     private EditText titulo;
+
+    private final static String TAG = "msg-test";
 
     private EditText monto;
     private EditText descripcion;
@@ -120,9 +124,17 @@ public class AnadirIngresoActivity extends AppCompatActivity {
             fecha.setError("Seleccione una fecha de vencimiento");
             return;
         }
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null) { //user logged-in
+            if (currentUser.isEmailVerified()) {
+                Log.d(TAG, "Firebase uid: " + currentUser.getUid());
+            }
+        }
         String idIngreso = generarIdIngreso();
-        String idUsuario = "20182758";
-        Ingreso ingreso = new Ingreso(idIngreso, tituloStr, monto, descripcionStr, fechaIngreso, idUsuario);
+        //String idUsuario = "20182758";
+        Ingreso ingreso = new Ingreso(idIngreso, tituloStr, monto, descripcionStr, fechaIngreso, currentUser.getUid());
 
         // Guardar los datos en Firestore
         db.collection("ingresos")

@@ -2,6 +2,7 @@ package com.example.lab6_iot;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,8 @@ import com.example.lab6_iot.Bean.Egreso;
 import com.example.lab6_iot.Bean.Ingreso;
 import com.example.lab6_iot.databinding.FragmentEgresosBinding;
 import com.example.lab6_iot.databinding.FragmentIngresosBinding;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
@@ -34,6 +37,8 @@ public class EgresosFragment extends Fragment {
     FirebaseFirestore db;
 
     ListaEgresosAdapter adapter;
+
+    private final static String TAG = "msg-test";
 
 
     private FragmentEgresosBinding binding;
@@ -89,13 +94,23 @@ public class EgresosFragment extends Fragment {
     }
 
     private void obtenerEgresosDeFirestore() {
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser != null) { //user logged-in
+            if (currentUser.isEmailVerified()) {
+                Log.d(TAG, "Firebase uid: " + currentUser.getUid());
+            }
+        }
         db.collection("egresos")
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                             Egreso egreso = document.toObject(Egreso.class);
-                            listaEgresos.add(egreso);
+                            if(egreso.getIdUsuario().equals(currentUser.getUid())) {
+                                listaEgresos.add(egreso);
+                            }
 
                         }
                         adapter.notifyDataSetChanged(); // Notificar al adapter que los datos han cambiado
